@@ -61,43 +61,16 @@ int main(int argc, char **argv)
 	// print_point_list(retour_en_liste);
 
 	int child;
-	int codeSpawn, codePkByte, codeSend;
+	int codeSpawn;
 	codeSpawn = pvm_spawn("/home/ivan/Documents/pvm/TP4/UH/slave",NULL,0,NULL,1,&child);
-	// pvm_initsend(PvmDataDefault);
-	// codePkByte = pvm_pkint(&nombre_de_points,1,1);
-	// printf("Code Spawn : %d, Code PkByte : %d; Code Send : %d\n",codeSpawn,codePkByte,codeSend);
-	// codePkByte = pvm_pkbyte((char *)pts_tableau,sizeof(point) * nombre_de_points,1);
-	// codeSend = pvm_send(child,1);
-	// printf("Code Spawn : %d, Code PkByte : %d; Code Send : %d\n",codeSpawn,codePkByte,codeSend);
-
-	// point * new_pts = malloc(sizeof(point) * nombre_de_points);
-	// pvm_recv(child,1);
-	// pvm_upkbyte((char*)new_pts,sizeof(point) * nombre_de_points,1);
 
 	send_points_array(pts_tableau,nombre_de_points,child);
 
 	int nombreDePointsRecu;
 
-	printf(" Nombre points : %d\n",nombreDePointsRecu);
 	point * new_pts = receive_points_array(&nombreDePointsRecu,child);
-	print_point_array(new_pts,nombreDePointsRecu);
-
-	// int child;
-	// point unPoint;
-	// unPoint.x = 3;
-	// unPoint.y = 2;
-	// int codeSpawn, codePkByte, codeSend;
-	// codeSpawn = pvm_spawn("/home/ivan/Documents/pvm/TP4/UH/slave",NULL,0,NULL,1,&child);
-	// pvm_initsend(PvmDataDefault);
-	// codePkByte = pvm_pkbyte((char *)&unPoint,sizeof(point),1);
-	// codeSend = pvm_send(child,1);
-	// printf("Code Spawn : %d, Code PkByte : %d; Code Send : %d\n",codeSpawn,codePkByte,codeSend);
-	// printf("Point Envoyé : {%d,%d}\n",unPoint.x,unPoint.y);
-
-	// point pointTest;
-	// pvm_recv(child,1);
-	// pvm_upkbyte((char*)&pointTest,sizeof(point),1);
-	// printf("Point Reçu : {%d,%d}\n",pointTest.x,pointTest.y);
+	new_pts = array_to_list(new_pts,nombre_de_points);
+	print_point_list(new_pts);
 	
 	// point_print_gnuplot(pts, 0); /* affiche l'ensemble des points */
 	// upper_hull(pts);

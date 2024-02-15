@@ -6,43 +6,39 @@
 
 int main(int argc, char **argv)
 {
-	// point pts;
-	// int parentNode = pvm_parent();
-	// pvm_recv(parentNode,1);
-	// pvm_upkbyte((char*)&pts,sizeof(point),1);
-	// pts.x = pts.x * 2;
-	// pts.y = pts.y * 2;
-	// pvm_initsend(PvmDataDefault);
-	// pvm_pkbyte((char*)&pts,sizeof(point),1);
-	// pvm_send(parentNode,1);
+    int parentNode = pvm_parent();
+    int nbPoints;
+    point *pts;
 
+    pts = receive_points_array(&nbPoints, parentNode);
+    // Modifier les coordonnées des points
+    for (size_t i = 0; i < nbPoints; i++)
+    {
+        pts[i].x = pts[i].x * 2;
+        pts[i].y = pts[i].y * 2;
+    }
 
-	int parentNode = pvm_parent();
-	int nbPoints;
-	point * pts;
+    // Écrire le tableau de points dans un fichier texte
+    FILE *file = fopen("/home/ivan/Documents/pvm/pvm_project/points_output.txt", "w");
+	pvm_catchout(file);
+    if (file == NULL)
+    {
+        fprintf(stderr, "Erreur lors de l'ouverture du fichier.\n");
+        exit(EXIT_FAILURE);
+    }
 
-	pts = receive_points_array(&nbPoints,parentNode);
+    for (size_t i = 0; i < nbPoints; i++)
+    {
+        fprintf(file, "%.2f %.2f\n", pts[i].x, pts[i].y);
+    }
 
-	// pvm_recv(parentNode,1);
-	// pvm_upkint(&nbPoints,1,1);
-	// point * pts = malloc(sizeof(point) * nbPoints);
-	// pvm_upkbyte((char*)pts,sizeof(point) * nbPoints,1);
+	printf("Test");
 
-	for (size_t i = 0; i < nbPoints; i++)
-	{
-		pts[i].x = pts[i].x * 2;
-		pts[i].y = pts[i].y * 2;
-	}
+    fclose(file);
 
-	send_points_array(pts,nbPoints,parentNode);
+    // Envoyer le tableau de points modifié au parent
+    send_points_array(pts, nbPoints, parentNode);
+    pvm_exit();
 
-	// pvm_initsend(PvmDataDefault);
-	// pvm_pkbyte((char *)pts,sizeof(point) * nbPoints,1);
-	// pvm_send(parentNode,1);
-	
-	// pvm_initsend(PvmDataDefault);
-	// pvm_pkbyte((char*)&pts,sizeof(point),1);
-	// pvm_send(parentNode,1);
-
-	pvm_exit();
+    return 0;
 }
