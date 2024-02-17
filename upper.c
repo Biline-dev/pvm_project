@@ -43,6 +43,7 @@ void upper_hull(point *pts)
 
 int main(int argc, char **argv)
 {
+	//pvm_catchout(stdout);
 	point *pts;
 
 	if (argc != 2) {
@@ -52,24 +53,13 @@ int main(int argc, char **argv)
 
 	pts = point_random(atoi(argv[1]));
 	print_point_list(pts);
-
-	int nombre_de_points = point_nb(pts);
-	point * pts_tableau = list_to_array(pts);
-	print_point_array(pts_tableau,nombre_de_points);
-
-	// point * retour_en_liste = array_to_list(pts_tableau,nombre_de_points);
-	// print_point_list(retour_en_liste);
-
+	
 	int child;
-	int codeSpawn;
-	codeSpawn = pvm_spawn("/home/ivan/Documents/pvm/TP4/UH/slave",NULL,0,NULL,1,&child);
+	pvm_spawn("/home/ivan/Documents/pvm/pvm_project/slave",NULL,0,NULL,1,&child);
 
-	send_points_array(pts_tableau,nombre_de_points,child);
+	send_points_liste(pts,child);
 
-	int nombreDePointsRecu;
-
-	point * new_pts = receive_points_array(&nombreDePointsRecu,child);
-	new_pts = array_to_list(new_pts,nombre_de_points);
+	point * new_pts = receive_points_liste(child);
 	print_point_list(new_pts);
 	
 	// point_print_gnuplot(pts, 0); /* affiche l'ensemble des points */
@@ -77,5 +67,6 @@ int main(int argc, char **argv)
 	// point_print_gnuplot(pts, 1); /* affiche l'ensemble des points restant, i.e l'enveloppe, en reliant les points */
 
 	point_free(pts);
+	point_free(new_pts);
 	pvm_exit();
 }

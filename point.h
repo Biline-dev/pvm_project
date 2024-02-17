@@ -1,3 +1,4 @@
+#pragma once
 /*
  * upper.h
  * SR 		13/04/94
@@ -39,3 +40,5 @@ extern void print_point_array(point *pts, int nbPoints);
 extern void print_point_list(point *pts);
 extern void send_points_array(point * tableau_point,int nb_point, int tid);
 extern point * receive_points_array(int * nb_point, int tid);
+extern void send_points_liste(point * liste_point, int tid);
+extern point * receive_points_liste(int tid);

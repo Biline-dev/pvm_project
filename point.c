@@ -159,7 +159,7 @@ int point_nb(point *pts)
 
 point *point_part(point *pts)
 {
-	int nb, next;
+	int next;
 	point *cur, *mid, *midpred;
 
 	midpred = NULL;
@@ -295,36 +295,6 @@ point *point_merge_UH(point *pts1, point *pts2)
 	return pts1;
 }
 
-
-//Transforme une liste en tableau
-//Retourne un pointeur sur le tableau
-point * list_to_array(point * pts)
-{
-	int nbPoints = point_nb(pts);
-	point * result = (point *) malloc(sizeof(point) * nbPoints);
-	for (size_t i = 0; i < nbPoints; i++)
-	{
-		result[i] = *pts;
-		pts = pts->next;
-	}
-	return result;
-}
-
-
-//Tranforme un tableau de point en liste
-//Retourne le premier point de la liste
-point * array_to_list(point * pts, int nbPoints)
-{
-	point * result = &pts[0];
-	point * temp = result;
-	for (size_t i = 0; i < nbPoints; i++)
-	{
-		temp->next = pts[i].next;
-		temp = temp->next;
-	}
-	return result;
-}
-
 //Affiche un tableau de point
 void print_point_array(point * pts, int nbPoints)
 {
@@ -349,6 +319,42 @@ void print_point_list(point * pts)
 	printf("\n");
 }
 
+//Transforme une liste en tableau
+//Retourne un pointeur sur le tableau
+point * list_to_array(point * pts)
+{
+	int nbPoints = point_nb(pts);
+	point * result = (point *) malloc(sizeof(point) * nbPoints);
+	for (size_t i = 0; i < nbPoints; i++)
+	{
+		result[i].x = pts->x;
+		result[i].y = pts->y;
+		pts = pts->next;
+	}
+	return result;
+}
+
+
+//Tranforme un tableau de point en liste
+//Retourne le premier point de la liste
+point * array_to_list(point * pts, int nbPoints)
+{
+	point * result = point_alloc();
+	point * temp = result;
+	for (int i = 0; i < nbPoints ; i++)
+	{
+		temp->x = pts[i].x;
+		temp->y = pts[i].y;
+		if(i < (nbPoints - 1))
+		{
+			temp->next = point_alloc();
+			temp = temp->next;
+		}
+	}
+
+	return result;
+}
+
 /*
 * Envoie un tableau de point à un processus pvm
 * tableau_point : pointeur sur le tableau de point
@@ -357,13 +363,10 @@ void print_point_list(point * pts)
 */
 void send_points_array(point * tableau_point,int nb_point, int tid)
 {
-	int codePkInt, codePkByte, codeSend;
-
 	pvm_initsend(PvmDataDefault);
-	codePkInt = pvm_pkint(&nb_point,1,1);
-	codePkByte = pvm_pkbyte((char *)tableau_point,sizeof(point) * nb_point,1);
-	codeSend = pvm_send(tid,1);
-	printf("Code PkInt : %d, Code PkByte : %d; Code Send : %d\n",codePkInt,codePkByte,codeSend);
+	pvm_pkint(&nb_point,1,1);
+	pvm_pkbyte((char *)tableau_point,sizeof(point) * nb_point,1);
+	pvm_send(tid,1);
 }
 
 /*
@@ -375,7 +378,6 @@ point * receive_points_array(int * nb_point, int tid)
 {
 	pvm_recv(tid,1);
 	pvm_upkint(nb_point,1,1);
-	printf("Nombre de point recu %d",(*nb_point));
 	point * new_pts = malloc(sizeof(point) * (*nb_point));
 	pvm_upkbyte((char*)new_pts,sizeof(point) * (*nb_point),1);
 
@@ -401,7 +403,7 @@ void send_points_liste(point * liste_point, int tid)
 point * receive_points_liste(int tid)
 {
 	int nb_point;
-	point * new_pts = receive_points_array(nb_point,tid);
+	point * new_pts = receive_points_array(&nb_point,tid);
 	new_pts = array_to_list(new_pts,nb_point);
 	return new_pts;
 }
