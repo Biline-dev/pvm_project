@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     while (temp != NULL)
     {
         temp->x = temp->x * 2;
-        temp->x = temp->x * 2;
+        temp->y = temp->y * 2;
         temp = temp->next;
     }
 

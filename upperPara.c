@@ -37,8 +37,8 @@ void upper_hull(point *pts)
 		int child1, child2, nbPoint1, nbPoint2;
 		nbPoint1 = point_nb(pts);
 		nbPoint2 = point_nb(pts2);
-		pvm_spawn("/home/ivan/Documents/pvm/TP4/UH/upper",NULL,0,NULL,1,&child1);
-		pvm_spawn("/home/ivan/Documents/pvm/TP4/UH/upper",NULL,0,NULL,1,&child2);
+		pvm_spawn("/home/ivan/Documents/pvm/pvm_project/upper",NULL,0,NULL,1,&child1);
+		pvm_spawn("/home/ivan/Documents/pvm/pvm_project/upper",NULL,0,NULL,1,&child2);
 		pts = list_to_array(pts);
 		pts2 = list_to_array(pts2);
 		send_points_array(pts,nbPoint1,child1);
