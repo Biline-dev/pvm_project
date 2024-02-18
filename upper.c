@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "point.h"
-#include "pvm3.h"
+#include "pvm3.h" 
 /*
  * calcul recursif d'enveloppe
  * convexe par bissection
@@ -64,24 +64,18 @@ int main(int argc, char **argv)
 		pts2 = receive_points_liste(child2);
 
 		pts = point_merge_UH(pts, pts2);
+	}
 
-		if (pvm_parent() != PvmNoParent)
-		{
-			send_points_liste(pts,pvm_parent());
-		}
+	if (pvm_parent() != PvmNoParent)
+	{
+		send_points_liste(pts,pvm_parent());
 	}
 	else
-	{
-		if (pvm_parent() != PvmNoParent)
-		{
-			send_points_liste(pts,pvm_parent());
-		}
-	}
-
-	if (pvm_parent() == PvmNoParent)
 	{
 		point_print_gnuplot(pts, 1); /* affiche l'ensemble des points restant, i.e l'enveloppe, en reliant les points */
 		point_free(pts); 	
 	}
-}
 
+	pvm_exit();
+	exit(0);
+}
