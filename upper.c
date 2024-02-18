@@ -11,8 +11,8 @@
  * programme principal en sequentiel
  */
 
-#include "stdio.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include "point.h"
 #include "pvm3.h"
 /*
@@ -23,7 +23,7 @@
 /*
  * upper <nb points>
  * exemple :
- * % upper 200 
+ * % upper 200
  * % evince upper_hull.pdf
  */
 
