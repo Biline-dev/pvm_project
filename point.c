@@ -22,11 +22,9 @@
 point *point_alloc()
 {
 	point *pt;
-
 	pt = (point *)malloc(sizeof(point));
 	pt->x = pt->y = 0;
 	pt->next = NULL;
-
 	return pt;
 }
 
@@ -406,4 +404,66 @@ point * receive_points_liste(int tid)
 	point * new_pts = receive_points_array(&nb_point,tid);
 	new_pts = array_to_list(new_pts,nb_point);
 	return new_pts;
+}
+
+void send_pb(pb_t * pb, int tid)
+{
+	pvm_initsend(PvmDataDefault);
+	pvm_pkint(&pb->type,1,1);
+	pvm_send(tid,1);
+	send_points_liste(pb->data1,tid);
+	if (pb->type == 1)
+	{
+		send_points_liste(pb->data2,tid);	
+	}
+}
+
+pb_t * receive_pb(int tid, int * sender)
+{
+	pb_t * pb = (pb_t *) malloc(sizeof(pb_t));
+	int bufid, bytes_received, info_tag, info_tid;
+	bufid = pvm_recv(tid,1);
+	pvm_bufinfo(bufid, &bytes_received, &info_tag, &info_tid);
+	*sender = info_tid;
+	pvm_upkint(&pb->type,1,1);
+	pb->data1 = receive_points_liste(tid);
+	if(pb->type == 1)
+	{
+		pb->data2 = receive_points_liste(tid);
+	}
+	return pb;
+}
+
+void print_pb(pb_t * pb)
+{
+	printf("Pb { \nType : %d\n",pb->type);
+	printf("Data 1 : ");
+	print_point_list(pb->data1);
+	printf("Data 2 : ");
+	print_point_list(pb->data2);
+	printf("}\n");
+}
+
+point * ajouter_point_fin_liste(point * liste, point * pts)
+{
+	if(liste == NULL)
+	{
+		liste = point_alloc();
+		liste->x = pts->x;
+		liste->y = pts->y;
+		return liste;
+	}
+	else
+	{
+		point *current = liste;
+        while (current->next != NULL)
+		{
+            current = current->next;
+        }
+        // À ce stade, current est le dernier point de la liste
+        current->next = point_alloc();
+        current->next->x = pts->x;
+        current->next->y = pts->y;
+        return liste;
+	}
 }

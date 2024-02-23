@@ -20,6 +20,16 @@ struct st_point {
 	point *next;	/* liste chainee des points de l'enveloppe */
 };
 
+struct st_pb
+{
+	//Type 1 : point_UH, 2 : point_merge_UH, -1 : Terminer le programme
+	int type;
+	point * data1;
+	point * data2;
+};
+
+typedef struct st_pb pb_t;
+
 /*
  * dans point.c
  * utilitaire de calcul pour le TAD point
@@ -42,3 +52,7 @@ extern void send_points_array(point * tableau_point,int nb_point, int tid);
 extern point * receive_points_array(int * nb_point, int tid);
 extern void send_points_liste(point * liste_point, int tid);
 extern point * receive_points_liste(int tid);
+extern void send_pb(pb_t * pb, int tid);
+extern pb_t * receive_pb(int tid, int * sender);
+extern void print_pb(pb_t * pb);
+extern point * ajouter_point_fin_liste(point * liste, point * pts);

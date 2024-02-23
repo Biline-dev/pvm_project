@@ -92,45 +92,26 @@ void print_pile()
 int main(int argc, char **argv)
 {
 	pvm_catchout(stdout);
-	point *pts;
-	pb_t * pb;
 	int tid[NB_SLAVE];
-	if (argc != 2) {
-		fprintf(stderr, "usage: %s <nb points>\n", *argv);
-		exit(-1);
-	}
-
-	pts = point_random(atoi(argv[1]));
-	init_pile(pts);
-	print_pile();
+	int test;
 
 	pvm_spawn("/home/ivan/Documents/pvm/pvm_project/slave",NULL,0,NULL,NB_SLAVE,tid);
 
-	int index_slave = 0;
-	for (int i = 0; i < NB_SLAVE; i++)
-	{
-		pb = depile();
-		send_pb(pb,tid[i]);
-	}
+	pvm_recv(-1,1);
+	pvm_upkint(&test,1,1);
+	printf("Ceci est le nombre reçu ! %d",test);
+	pvm_recv(-1,1);
+	pvm_upkint(&test,1,1);
+	printf("Ceci est le nombre reçu ! %d",test);
+	pvm_recv(-1,1);
+	pvm_upkint(&test,1,1);
+	printf("Ceci est le nombre reçu ! %d",test);
+	pvm_recv(-1,1);
+	pvm_upkint(&test,1,1);
+	printf("Ceci est le nombre reçu ! %d",test);	
 
-	printf("Les pb ont été envoyé\n");
-
-	// for (int i = 0; i < NB_SLAVE; i++)
-	// {
-	// 	pb = receive_pb(-1,&sender);
-	// }
-
-
-	int sender;
 	// while(1)
 	// {
-	// 	pb = receive_pb(-1,&sender);
-
-	// 	if()
-	// 	{
-
-	// 	}
-
 	// 	if((pb = depile()) != NULL)
 	// 	{
 	// 		send_pb(pb,tid[index_slave]);
@@ -140,34 +121,7 @@ int main(int argc, char **argv)
 	// 			index_slave = 0;
 	// 		}
 	// 	}
-	// 	fflush(stdout);
 	// }
-
-	while (1)
-	{
-		pb = receive_pb(-1, sender);
-		//if (pb->data1 == DATA) break;
-		empile(pb);
-		pb = depile();
-		// if (pb->type == PB_TRI) 
-		// 	send_pb(pb,*sender);
-		// else {
-		// 	pb_t *pb2 = depile();
-		// 	if (pb2 == NULL) empile(pb);
-		// 	else {
-		// 		if (pb2->type == PB_TRI) {
-		// 			send_pb(*sender, pb2);
-		// 			empile(pb);
-		// 		}
-		// 		else {
-		// 			pb->taille2 = pb2->taille1;
-		// 			pb->data2 = pb2->data1;
-		// 			send_pb(*sender, pb);
-		// 			free(pb2);
-		// 		}
-		// 	}
-		// }
-	}
 	
 	pvm_exit();
 	exit(0);
