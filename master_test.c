@@ -91,38 +91,40 @@ void print_pile()
 
 int main(int argc, char **argv)
 {
+	setvbuf(stdout, NULL, _IONBF, 0);  // Pas de tampon
 	pvm_catchout(stdout);
-	int tid[NB_SLAVE];
-	int test;
+	int tid;
 
-	pvm_spawn("/home/ivan/Documents/pvm/pvm_project/slave",NULL,0,NULL,NB_SLAVE,tid);
+	pvm_spawn("/home/ivan/Documents/pvm/pvm_project/test_slave",NULL,0,NULL,1,&tid);
 
-	pvm_recv(-1,1);
-	pvm_upkint(&test,1,1);
-	printf("Ceci est le nombre reçu ! %d",test);
-	pvm_recv(-1,1);
-	pvm_upkint(&test,1,1);
-	printf("Ceci est le nombre reçu ! %d",test);
-	pvm_recv(-1,1);
-	pvm_upkint(&test,1,1);
-	printf("Ceci est le nombre reçu ! %d",test);
-	pvm_recv(-1,1);
-	pvm_upkint(&test,1,1);
-	printf("Ceci est le nombre reçu ! %d",test);	
+	//PB 1
+	pb_t pb;
+	pb.type = 1;
+	pb.data1 = point_random(3);
+	pb.data2 = point_random(3);
+	print_pb(&pb);
+	send_pb(&pb,tid);
 
-	// while(1)
-	// {
-	// 	if((pb = depile()) != NULL)
-	// 	{
-	// 		send_pb(pb,tid[index_slave]);
-	// 		index_slave++;
-	// 		if(index_slave == NB_SLAVE)
-	// 		{
-	// 			index_slave = 0;
-	// 		}
-	// 	}
-	// }
-	
+	//PB 2
+	pb_t pb2;
+	pb2.type = 1;
+	pb2.data2 = point_random(6);
+	print_pb(&pb2);
+	send_pb(&pb2,tid);
+
+	//PB 3
+	pb_t pb3;
+	pb3.type = 1;
+	pb3.data1 = point_random(6);
+	print_pb(&pb3);
+	send_pb(&pb3,tid);
+
+	//PB 4
+	pb_t pb4;
+	pb4.type = 1;
+	print_pb(&pb4);
+	send_pb(&pb4,tid);
+
 	pvm_exit();
-	exit(0);
+	return 0;
 }

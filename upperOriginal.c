@@ -52,6 +52,6 @@ int main(int argc, char **argv)
 	upper_hull(pts);
 	point_print_gnuplot(pts, 1); /* affiche l'ensemble des points restant, i.e
 					l'enveloppe, en reliant les points */
-	point_free(pts); 
+	point_free(pts);
 }
 

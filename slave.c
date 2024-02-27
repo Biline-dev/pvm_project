@@ -6,41 +6,40 @@
 
 int main(int argc, char **argv)
 {
+    setvbuf(stdout, NULL, _IONBF, 0);  // Pas de tampon
     int parentNode = pvm_parent();
     pb_t * pb;
     point * resultat;
     int sender;
+    
 
-    // while (1)
-    // {
-    //     pb = receive_pb(parentNode,&sender);   
-    //     if(pb->type == 1)
-    //     {
-    //         resultat = point_UH(pb->data1);
-    //         pb->data1 = resultat;
-    //     }
-    //     if(pb->type == 2)
-    //     {
-    //         resultat = point_merge_UH(pb->data1,pb->data2);
-    //         pb->data1 = resultat;
-    //     }
-    //     send_pb(pb,parentNode);
-    //     fflush(stdout);
-    // }
-
-    pb = receive_pb(parentNode,&sender);   
-    print_pb(pb);
-    if(pb->type == 1)
+    while (1)
     {
-        resultat = point_UH(pb->data1);
-        pb->data1 = resultat;
+        pb = receive_pb(parentNode,&sender);
+        printf("\nProblème reçu : ");
+            print_pb(pb);
+        if(pb->type == 3)
+        {
+            pvm_exit();
+            exit(0);
+        }
+        if(pb->type == 1)
+        {
+            resultat = point_UH(pb->data1);
+            pb->data1 = resultat;
+            printf("\nProblème de truc traité : ");
+            print_pb(pb);
+        }
+        else
+        {
+            resultat = point_merge_UH(pb->data1,pb->data2);
+            pb->data1 = resultat;
+            pb->data2 = NULL;
+            printf("\nProblème de fusion traité : ");
+            print_pb(pb);
+        }
+        printf("Envoi du problème au maitre\n");
+        send_pb(pb,parentNode);
+        printf("Problème envoyé au maitre\n");
     }
-    if(pb->type == 2)
-    {
-        resultat = point_merge_UH(pb->data1,pb->data2);
-        pb->data1 = resultat;
-    }
-    send_pb(pb,parentNode);
-    fflush(stdout);
-    return 0;
 }

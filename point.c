@@ -293,6 +293,16 @@ point *point_merge_UH(point *pts1, point *pts2)
 	return pts1;
 }
 
+//Allocation d'un probleme
+pb_t * alloc_pb()
+{
+	pb_t * new_pb = (pb_t *) malloc(sizeof(pb_t));
+	new_pb->data1 = NULL;
+	new_pb->data2 = NULL;
+	new_pb->type = 0;
+	return new_pb; 
+}
+
 //Affiche un tableau de point
 void print_point_array(point * pts, int nbPoints)
 {
@@ -306,6 +316,11 @@ void print_point_array(point * pts, int nbPoints)
 //Affiche une liste de point (Plus joli que point_print)
 void print_point_list(point * pts)
 {
+	if(pts == NULL)
+	{
+		printf("NULL");
+	}
+	
 	while (pts)
 	{
 		printf("(%d,%d)",pts->x,pts->y);
@@ -321,7 +336,18 @@ void print_point_list(point * pts)
 //Retourne un pointeur sur le tableau
 point * list_to_array(point * pts)
 {
+	if (pts == NULL)
+	{
+		return NULL;
+	}
+
 	int nbPoints = point_nb(pts);
+
+	if (nbPoints == 0)
+	{
+		return NULL;
+	}
+
 	point * result = (point *) malloc(sizeof(point) * nbPoints);
 	for (size_t i = 0; i < nbPoints; i++)
 	{
@@ -337,6 +363,11 @@ point * list_to_array(point * pts)
 //Retourne le premier point de la liste
 point * array_to_list(point * pts, int nbPoints)
 {
+	if (nbPoints == 0)
+	{
+		return NULL;
+	}
+	
 	point * result = point_alloc();
 	point * temp = result;
 	for (int i = 0; i < nbPoints ; i++)
@@ -353,85 +384,90 @@ point * array_to_list(point * pts, int nbPoints)
 	return result;
 }
 
-/*
-* Envoie un tableau de point à un processus pvm
-* tableau_point : pointeur sur le tableau de point
-* nb_point : nombre de point dans le tableau
-* tid : id du processus pvm qui recevra le tableau
-*/
-void send_points_array(point * tableau_point,int nb_point, int tid)
+pb_t * receive_pb(int tid, int * sender)
 {
-	pvm_initsend(PvmDataDefault);
-	pvm_pkint(&nb_point,1,1);
-	pvm_pkbyte((char *)tableau_point,sizeof(point) * nb_point,1);
-	pvm_send(tid,1);
-}
+	int nb_point1, nb_point2, bufid, bytes_received, info_tag, info_tid;
 
-/*
-* Reçoie un tableau de point d'un processus pvm
-* nb_point : recupère le nombre de point du tableau reçu
-* tid : id du processus pvm qui envoi le tableau
-*/
-point * receive_points_array(int * nb_point, int tid)
-{
-	pvm_recv(tid,1);
-	pvm_upkint(nb_point,1,1);
-	point * new_pts = malloc(sizeof(point) * (*nb_point));
-	pvm_upkbyte((char*)new_pts,sizeof(point) * (*nb_point),1);
+	//Allocation du probleme;
+	pb_t * pb = alloc_pb();
+	pb->data1 = NULL;
+	pb->data2 = NULL;
 
-	return new_pts;
-}
+	//Reception des données du problème
+	bufid = pvm_recv(tid,1);
 
-/*
-* Envoie une liste de point à un processus pvm
-* liste_point : pointeur sur la liste de point
-* tid : id du processus pvm qui recevra la liste
-*/
-void send_points_liste(point * liste_point, int tid)
-{
-	int nb_point = point_nb(liste_point);
-	point * tableau_point = list_to_array(liste_point);
-	send_points_array(tableau_point,nb_point,tid);
-}
+	//Permet de récupérer le tid du processus ayant envoyé le problème
+	pvm_bufinfo(bufid, &bytes_received, &info_tag, &info_tid);
+	*sender = info_tid;
 
-/*
-* Reçoie une liste de point d'un processus pvm
-* tid : id du processus pvm qui envoi la liste
-*/
-point * receive_points_liste(int tid)
-{
-	int nb_point;
-	point * new_pts = receive_points_array(&nb_point,tid);
-	new_pts = array_to_list(new_pts,nb_point);
-	return new_pts;
+	//Récupération du type du problème
+	pvm_upkint(&pb->type,1,1);
+
+	//Récupération des tailles des listes
+	pvm_upkint(&nb_point1,1,1);
+	pvm_upkint(&nb_point2,1,1);
+
+	if (nb_point1 != 0)
+	{
+		point * list1, * tab1;
+		tab1 = malloc(sizeof(point) * (nb_point1));
+
+		//Récupération du premier tableau de point
+		pvm_upkbyte((char*)tab1,sizeof(point) * (nb_point1),1);
+
+		//Transformation du tableau en chaine
+		list1 = array_to_list(tab1,nb_point1);
+		pb->data1 = list1;
+	}
+
+	if (nb_point2 != 0)
+	{
+		point * list2, * tab2;
+		tab2 = malloc(sizeof(point) * (nb_point2));
+
+		//Récupération du second tableau de point
+		pvm_upkbyte((char*)tab2,sizeof(point) * (nb_point2),1);
+
+		//Transformation du tableau en chaine
+		list2 = array_to_list(tab2,nb_point2);
+
+		pb->data2 = list2;
+	}
+
+	return pb;
 }
 
 void send_pb(pb_t * pb, int tid)
 {
 	pvm_initsend(PvmDataDefault);
-	pvm_pkint(&pb->type,1,1);
-	pvm_send(tid,1);
-	send_points_liste(pb->data1,tid);
-	if (pb->type == 1)
-	{
-		send_points_liste(pb->data2,tid);	
-	}
-}
 
-pb_t * receive_pb(int tid, int * sender)
-{
-	pb_t * pb = (pb_t *) malloc(sizeof(pb_t));
-	int bufid, bytes_received, info_tag, info_tid;
-	bufid = pvm_recv(tid,1);
-	pvm_bufinfo(bufid, &bytes_received, &info_tag, &info_tid);
-	*sender = info_tid;
-	pvm_upkint(&pb->type,1,1);
-	pb->data1 = receive_points_liste(tid);
-	if(pb->type == 1)
+	//Envoi du type de pb
+	pvm_pkint(&pb->type,1,1);
+
+	//Récupération de la taille des listes
+	int nb_point1 = point_nb(pb->data1);
+	int nb_point2 = point_nb(pb->data2);
+
+	//Stockage du nombre de point des listes
+	pvm_pkint(&nb_point1,1,1);
+	pvm_pkint(&nb_point2,1,1);
+
+	if(nb_point1 > 0)
 	{
-		pb->data2 = receive_points_liste(tid);
+		//Transformation des listes en tableau
+		point * tableau_point1 = list_to_array(pb->data1);
+		pvm_pkbyte((char *)tableau_point1,sizeof(point) * nb_point1,1);
 	}
-	return pb;
+	
+	if(nb_point2 > 0)
+	{
+		//Transformation des listes en tableau
+		point * tableau_point2 = list_to_array(pb->data2);
+		pvm_pkbyte((char *)tableau_point2,sizeof(point) * nb_point2,1);
+	}
+
+	//Envoi des données
+	pvm_send(tid,1);
 }
 
 void print_pb(pb_t * pb)
