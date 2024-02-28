@@ -15,10 +15,9 @@ int main(int argc, char **argv)
 
     while (1)
     {
-        printf("En attente de reception d'un probleme\n");
         pb = receive_pb(parentNode,&sender);
         printf("\nProblème reçu : ");
-        print_pb(pb);
+            print_pb(pb);
         if(pb->type == 3)
         {
             pvm_exit();
@@ -33,17 +32,7 @@ int main(int argc, char **argv)
         }
         else
         {
-            printf("Problème de type 2 reçu\n");
-            if(pb->data1->x > pb->data2->x)
-            {
-                printf("Inveserion\n");
-                resultat = point_merge_UH(pb->data2,pb->data1);
-            }
-            else
-            {
-                printf("Pas d'inversion");
-                resultat = point_merge_UH(pb->data1,pb->data2);
-            }
+            resultat = point_merge_UH(pb->data1,pb->data2);
             pb->data1 = resultat;
             pb->data2 = NULL;
             printf("\nProblème de fusion traité : ");

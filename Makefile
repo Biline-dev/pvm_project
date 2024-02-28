@@ -3,7 +3,7 @@ CFLAGS = -Wall -O2
 BDIR = $(PWD)
 
 # Source files
-UPPER_SRC = upper.c point.c
+UPPER_SRC = master.c point.c
 SLAVE_SRC = slave.c point.c
 
 # Object files
@@ -11,7 +11,7 @@ UPPER_OBJ = $(UPPER_SRC:.c=.o)
 SLAVE_OBJ = $(SLAVE_SRC:.c=.o)
 
 # Executables
-UPPER_EXEC = $(BDIR)/upper
+UPPER_EXEC = $(BDIR)/master
 SLAVE_EXEC = $(BDIR)/slave
 
 # Compilation rules
