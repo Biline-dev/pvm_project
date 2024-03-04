@@ -91,43 +91,28 @@ void print_pile()
 
 int main(int argc, char **argv)
 {
-	setvbuf(stdout, NULL, _IONBF, 0);  // Pas de tampon
+	//setvbuf(stdout, NULL, _IONBF, 0);  // Pas de tampon
 	pvm_catchout(stdout);
-	point *pts;
+	point *pts; //Liste initial de points
+	point * result;  //Envelopppe convexe de la liste de points
+	point * last; //Dernier points de la liste initiale,  utilisé pour la condition d'arrêt
+
 	pb_t * pb;
 	int sender;
-	int nbPoint = 0, nbPbEnvoye = 0, nbPbRecu = 0, nbBoucle = 0;
 	int tid[NB_SLAVE];
+
 	if (argc != 2) 
 	{
 		fprintf(stderr, "usage: %s <nb points>\n", *argv);
 		exit(-1);
 	}
 
-	pts = point_random(atoi(argv[1]));
+	pts = point_random(atoi(argv[1])); //Création de la liste de points
+
+	last = get_last_point(pts);
+	printf("%d,%d\n",last->x,last->y);
+
 	point_print_gnuplot(pts, 0); /* affiche l'ensemble des points */
-
-	//Récupération du nombre de points
-	nbPoint = point_nb(pts);
-
-	//Calcul du nombre de problème
-	nbPb = nbPoint / 4;
-	if (nbPoint % 4 > 0)
-		nbPb++;
-
-	//Estimation du nombre de tour de boucle nécessaire
-    int impair;
-	int tempNbPb = nbPb;
-	nbBoucle = nbPb;
-    while (tempNbPb > 1)
-    {
-        impair = tempNbPb % 2;
-        tempNbPb = tempNbPb / 2;
-        nbBoucle = nbBoucle + tempNbPb;
-        if(impair)
-            nbBoucle++;
-    }
-	printf("Le nombre de tour de boucle normalement est : %d\n",nbBoucle);
 
 	//Création des problèmes et placement des problèmes dans la pile
 	init_pile(pts);
@@ -141,29 +126,37 @@ int main(int argc, char **argv)
 	{
 		pb = depile();
 		send_pb(pb,tid[i]);
-		nbPbEnvoye++;
 	}
 
 	printf("Les pb ont été envoyé\n");
 
 
+	int i = 0;
 	//for (int i = 0; i < nbBoucle; i++)
 	while(1)
 	{
 		printf("En attente de reception d'un probleme\n");
 		pb = receive_pb(-1, &sender);
-		nbPbRecu++;
 		pb->type = 2;
-		printf("\nProblème reçu N°%d : \n",nbPbRecu);
 		print_pb(pb);
+		if(pb->data1->x == pts->x && pb->data1->y == pts->y && get_last_point(pb->data1)->x == get_last_point(pts)->x && get_last_point(pb->data1)->y == get_last_point(pts)->y)
+		{
+			printf("WTF");
+			result = pb->data1;
+			break;
+		}
+		else
+		{
+			printf("pb first x : %d == pb first y : %d\n",pb->data1->x,pb->data1->y);
+			printf("pts first x : %d == pts first y : %d\n",pts->x,pts->y);
+			printf("pb last x : %d == pb last y : %d\n",get_last_point(pb->data1)->x,get_last_point(pts)->x);
+			printf("pts last x : %d == pts last y : %d\n",get_last_point(pb->data1)->y,get_last_point(pts)->y);
+		}
 		empile(pb);
-
 		pb = depile();
-
 		if (pb->type == 1)
 		{
 			send_pb(pb,sender);
-			nbPbEnvoye++;
 			printf("\nProblème envoyé : \n");
 			print_pb(pb);
 		}
@@ -181,7 +174,6 @@ int main(int argc, char **argv)
 				if (pb2->type == 1)
 				{
 					send_pb(pb2,sender);
-					nbPbEnvoye++;
 					printf("\nProblème envoyé : \n");
 					print_pb(pb2);
 					empile(pb);
@@ -190,30 +182,25 @@ int main(int argc, char **argv)
 				{
 					pb->data2 = pb2->data1;
 					send_pb(pb,sender);
-					nbPbEnvoye++;
 					printf("\nProblème envoyé : \n");
 					print_pb(pb);
 					free(pb2);
 				}
 			}
 		}
-		printf("Nombre de problem recu : %d\n",nbPbEnvoye);
-		//printf("Boucle n°%d sur %d\n",i,nbBoucle);
+		i++;
+		printf("i : %d\n",i);
 	}
 
-	// for (int i = 0; i < NB_SLAVE; i++)
-	// {
-	// 	pb_t * pbquit = alloc_pb();
-	// 	pbquit->type = 3;
-	// 	send_pb(pb,tid[i]);
-	// 	nbPbEnvoye++;
-	// }
+	for (int i = 0; i < NB_SLAVE; i++)
+	{
+		pb_t * pbquit = alloc_pb();
+		pbquit->type = 3;
+		send_pb(pb,tid[i]);
+	}
 
-	printf("Nombre de problem recu : %d\n",nbPbEnvoye);
-
-	pb = depile();
-	print_pb(pb);
-	point_print_gnuplot(pb->data1, 1);
+	printf("On est sorti de la boucle\n");
+	point_print_gnuplot(result, 1);
 	pvm_exit();
 	exit(0);
 }

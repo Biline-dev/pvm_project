@@ -9,7 +9,9 @@
 
 #define XMAX (1024)
 #define YMAX (1024)
-
+#define pb_calcul 1
+#define pb_merge 2
+#define pb_quit 3
 
 /* 
  * structure associee a chaque point 
@@ -53,3 +55,4 @@ extern pb_t * receive_pb(int tid, int * sender);
 extern void print_pb(pb_t * pb);
 extern point * ajouter_point_fin_liste(point * liste, point * pts);
 extern pb_t * alloc_pb();
+extern point * get_last_point(point *  pts);

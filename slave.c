@@ -19,11 +19,13 @@ int main(int argc, char **argv)
         pb = receive_pb(parentNode,&sender);
         printf("\nProblème reçu : ");
         print_pb(pb);
+        
         if(pb->type == 3)
         {
             pvm_exit();
             exit(0);
         }
+
         if(pb->type == 1)
         {
             resultat = point_UH(pb->data1);
@@ -43,6 +45,12 @@ int main(int argc, char **argv)
             {
                 printf("Pas d'inversion");
                 resultat = point_merge_UH(pb->data1,pb->data2);
+            }
+            if(resultat == NULL)
+            {
+                printf("Test\n");
+                pvm_exit();
+                exit(0);
             }
             pb->data1 = resultat;
             pb->data2 = NULL;

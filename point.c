@@ -503,3 +503,13 @@ point * ajouter_point_fin_liste(point * liste, point * pts)
         return liste;
 	}
 }
+
+point * get_last_point(point *  pts)
+{
+	point * last = pts;
+	while(last->next != NULL)
+	{
+		last = last->next;
+	}
+	return last;
+}
