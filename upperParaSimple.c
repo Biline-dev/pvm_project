@@ -56,8 +56,8 @@ int main(int argc, char **argv)
 		print_point_list(pts);
 		pts2 = point_part(pts);
 		int child1, child2;
-		pvm_spawn("/home/ivan/Documents/pvm/pvm_project/upper",NULL,0,NULL,1,&child1);
-		pvm_spawn("/home/ivan/Documents/pvm/pvm_project/upper",NULL,0,NULL,1,&child2);
+		pvm_spawn(EPATH"/upperParaSimple",NULL,0,NULL,1,&child1);
+		pvm_spawn(EPATH"/upperParaSimple",NULL,0,NULL,1,&child2);
 
 		send_points_liste(pts,child1);
 		send_points_liste(pts2,child2);

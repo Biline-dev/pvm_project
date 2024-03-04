@@ -384,6 +384,59 @@ point * array_to_list(point * pts, int nbPoints)
 	return result;
 }
 
+/*
+* Envoie un tableau de point à un processus pvm
+* tableau_point : pointeur sur le tableau de point
+* nb_point : nombre de point dans le tableau
+* tid : id du processus pvm qui recevra le tableau
+*/
+void send_points_array(point * tableau_point,int nb_point, int tid)
+{
+	pvm_initsend(PvmDataDefault);
+	pvm_pkint(&nb_point,1,1);
+	pvm_pkbyte((char *)tableau_point,sizeof(point) * nb_point,1);
+	pvm_send(tid,1);
+}
+
+/*
+* Reçoie un tableau de point d'un processus pvm
+* nb_point : recupère le nombre de point du tableau reçu
+* tid : id du processus pvm qui envoi le tableau
+*/
+point * receive_points_array(int * nb_point, int tid)
+{
+	pvm_recv(tid,1);
+	pvm_upkint(nb_point,1,1);
+	point * new_pts = malloc(sizeof(point) * (*nb_point));
+	pvm_upkbyte((char*)new_pts,sizeof(point) * (*nb_point),1);
+
+	return new_pts;
+}
+
+/*
+* Envoie une liste de point à un processus pvm
+* liste_point : pointeur sur la liste de point
+* tid : id du processus pvm qui recevra la liste
+*/
+void send_points_liste(point * liste_point, int tid)
+{
+	int nb_point = point_nb(liste_point);
+	point * tableau_point = list_to_array(liste_point);
+	send_points_array(tableau_point,nb_point,tid);
+}
+
+/*
+* Reçoie une liste de point d'un processus pvm
+* tid : id du processus pvm qui envoi la liste
+*/
+point * receive_points_liste(int tid)
+{
+	int nb_point;
+	point * new_pts = receive_points_array(&nb_point,tid);
+	new_pts = array_to_list(new_pts,nb_point);
+	return new_pts;
+}
+
 pb_t * receive_pb(int tid, int * sender)
 {
 	int nb_point1, nb_point2, bufid, bytes_received, info_tag, info_tid;

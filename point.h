@@ -47,6 +47,11 @@ extern point *point_part();
 extern point *point_merge_UH();
 extern void upper_hull();
 
+extern void send_points_array(point * tableau_point,int nb_point, int tid);
+extern point * receive_points_array(int * nb_point, int tid);
+extern void send_points_liste(point * liste_point, int tid);
+extern point * receive_points_liste(int tid);
+
 extern point *list_to_array(point *pts);
 extern point *array_to_list(point *pts, int nbPoints);
 extern void print_point_array(point *pts, int nbPoints);
