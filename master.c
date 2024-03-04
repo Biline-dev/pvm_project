@@ -197,7 +197,7 @@ int main(int argc, char **argv)
 	{
 		pb_t * pbquit = alloc_pb();
 		pbquit->type = 3;
-		send_pb(pb,tid[i]);
+		send_pb(pbquit,tid[i]);
 	}
 
 	printf("On est sorti de la boucle\n");
