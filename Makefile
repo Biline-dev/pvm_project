@@ -6,11 +6,13 @@ BDIR = $(PWD)
 MASTER_SRC = master.c point.c
 SLAVE_SRC = slave.c point.c
 UPPER_SRC = upperParaSimple.c point.c
+UPPER_ORIGINAL_SRC = upperOriginal.c point.c
 
 # Object files
 MASTER_OBJ = $(MASTER_SRC:.c=.o)
 SLAVE_OBJ = $(SLAVE_SRC:.c=.o)
 UPPER_OBJ = $(UPPER_SRC:.c=.o)
+UPPER_ORIGINAL_OBJ = $(UPPER_ORIGINAL_SRC:.c=.o)
 
 EXEC = $(PROG:%=$(BDIR)/%)
 
@@ -21,9 +23,13 @@ CFLAGS =  -I$(PVM_ROOT)/include -D_POSIX_C_SOURCE=2 -DEPATH=\"$(BDIR)\"
 MASTER_EXEC = $(BDIR)/master
 SLAVE_EXEC = $(BDIR)/slave
 UPPER_EXEC = $(BDIR)/upperParaSimple
+UPPER_ORIGINAL_EXEC = $(BDIR)/upperOriginal
 
 # Compilation rules
-all: $(MASTER_EXEC) $(SLAVE_EXEC) $(UPPER_EXEC)
+all: $(MASTER_EXEC) $(SLAVE_EXEC) $(UPPER_EXEC) $(UPPER_ORIGINAL_EXEC)
+
+$(UPPER_ORIGINAL_EXEC): $(UPPER_ORIGINAL_OBJ)
+	$(CC) -o $@ $(UPPER_ORIGINAL_OBJ) -lpvm3
 
 $(UPPER_EXEC): $(UPPER_OBJ)
 	$(CC) -o $@ $(UPPER_OBJ) -lpvm3
@@ -38,4 +44,4 @@ $(SLAVE_EXEC): $(SLAVE_OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o $(MASTER_EXEC) $(SLAVE_EXEC) upper_hull.pdf
+	rm -f *.o $(MASTER_EXEC) $(SLAVE_EXEC) $(UPPER_EXEC) $(UPPER_ORIGINAL_EXEC) upper_hull.pdf
