@@ -10,6 +10,11 @@ SLAVE_SRC = slave.c point.c
 UPPER_OBJ = $(UPPER_SRC:.c=.o)
 SLAVE_OBJ = $(SLAVE_SRC:.c=.o)
 
+EXEC = $(PROG:%=$(BDIR)/%)
+
+PVM_LIB = -lpvm3
+CFLAGS =  -I$(PVM_ROOT)/include -D_POSIX_C_SOURCE=2 -DEPATH=\"$(BDIR)\"
+
 # Executables
 UPPER_EXEC = $(BDIR)/master
 SLAVE_EXEC = $(BDIR)/slave

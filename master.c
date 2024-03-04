@@ -10,7 +10,7 @@
 #include "point.h"
 #include "pvm3.h" 
 
-#define NB_SLAVE 4
+#define NB_SLAVE 5
 
 static pb_t ** pile;
 static int nbPb, index_pile = 0;
@@ -45,6 +45,11 @@ void init_pile(point *pts)
 	if (nbPoint % 4 > 0)
 		nbPb++;
 
+	if(nbPb < NB_SLAVE)
+	{
+		printf("Le nombre de points (%d) est trop faible\nIl devrait être supérieur à %d pour %d processus esclaves\n",nbPoint,(4 * (NB_SLAVE - 1)),NB_SLAVE);
+		exit(0);
+	}
 
     pile = (pb_t**)malloc(sizeof(pb_t*) * nbPb);
     if (pile == NULL)
@@ -121,7 +126,7 @@ int main(int argc, char **argv)
 	print_pile();
 
 	//Créations des processus esclaves
-	pvm_spawn("/home/biline/Desktop/MasterUBO/s2/projet_lemarchand/projet_version_final/pvm_project/slave",NULL,0,NULL,NB_SLAVE,tid);
+	pvm_spawn(EPATH"/slave",NULL,0,NULL,NB_SLAVE,tid);
 
 	//Envoie un premier problème à chaque fils
 	for (i = 0; i < NB_SLAVE; i++)
@@ -154,7 +159,7 @@ int main(int argc, char **argv)
 		}
 		empile(pb);
 		pb = depile();
-		if (pb->type == 1)
+		if (pb->type == pb_calcul)
 		{
 			send_pb(pb,sender);
 			printf("\nProblème envoyé : \n");
