@@ -46,6 +46,7 @@ extern int point_nb();
 extern point *point_part();
 extern point *point_merge_UH();
 extern void upper_hull();
+
 extern point *list_to_array(point *pts);
 extern point *array_to_list(point *pts, int nbPoints);
 extern void print_point_array(point *pts, int nbPoints);

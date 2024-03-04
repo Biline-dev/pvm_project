@@ -91,7 +91,7 @@ void print_pile()
 
 int main(int argc, char **argv)
 {
-	//setvbuf(stdout, NULL, _IONBF, 0);  // Pas de tampon
+
 	pvm_catchout(stdout);
 	point *pts; //Liste initial de points
 	point * result;  //Envelopppe convexe de la liste de points
@@ -190,8 +190,6 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-
-	//pvm_mcast(tid, NB_SLAVE, 1); /* fin esclaves */
 
 	for (int i = 0; i < NB_SLAVE; i++)
 	{

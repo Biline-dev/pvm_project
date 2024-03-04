@@ -87,23 +87,6 @@ int main(int argc, char **argv)
     pb_t * pb;
     point * resultat;
     int sender;
-    
-    /*
- * calcul recursif d'enveloppe
- * convexe par bissection
- */
-void upper_hull(point *pts)
-{
-	point *upper, *pts2;
-
-	upper = point_UH(pts); /* retourne 0 si plus de 4 points */
-	if (!upper) {
-		pts2 = point_part(pts);
-		upper_hull(pts);
-		upper_hull(pts2);
-		point_merge_UH(pts, pts2);
-	}
-}
 
     while (1)
     {
@@ -112,13 +95,13 @@ void upper_hull(point *pts)
         printf("\nProblème reçu : ");
         print_pb(pb);
         
-        if(pb->type == 3)
+        if(pb->type == pb_quit)
         {
             pvm_exit();
             exit(0);
         }
 
-        if(pb->type == 1)
+        if(pb->type == pb_calcul)
         {
             resultat = point_UH(pb->data1);
             pb->data1 = resultat;
