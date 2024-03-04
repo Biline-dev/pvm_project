@@ -101,6 +101,7 @@ int main(int argc, char **argv)
 	pb_t * pb;
 	int sender;
 	int tid[NB_SLAVE];
+	int i;
 
 	if (argc != 2) 
 	{
@@ -120,10 +121,10 @@ int main(int argc, char **argv)
 	print_pile();
 
 	//Créations des processus esclaves
-	pvm_spawn("/home/ivan/Documents/pvm/pvm_temp/slave",NULL,0,NULL,NB_SLAVE,tid);
+	pvm_spawn("/home/biline/Desktop/MasterUBO/s2/projet_lemarchand/projet_version_final/pvm_project/slave",NULL,0,NULL,NB_SLAVE,tid);
 
 	//Envoie un premier problème à chaque fils
-	for (int i = 0; i < NB_SLAVE; i++)
+	for (i = 0; i < NB_SLAVE; i++)
 	{
 		pb = depile();
 		send_pb(pb,tid[i]);
@@ -132,8 +133,6 @@ int main(int argc, char **argv)
 	printf("Les pb ont été envoyé\n");
 
 
-	int i = 0;
-	//for (int i = 0; i < nbBoucle; i++)
 	while(1)
 	{
 		printf("En attente de reception d'un probleme\n");
@@ -141,15 +140,13 @@ int main(int argc, char **argv)
 		problemesResolus++;
 		pb->type = 2;
 		print_pb(pb);
-		// printf("pb first x : %d == pb first y : %d | ",pb->data1->x,pb->data1->y);
-		// printf("pts first x : %d == pts first y : %d\n",pts->x,pts->y);
-		// printf("pb last x : %d == pb last y : %d | ",get_last_point(pb->data1)->x,get_last_point(pb->data1)->y);
-		// printf("pts last x : %d == pts last y : %d\n",get_last_point(pts)->x,get_last_point(pts)->y);
+		i--;
+		
 		if(pb->data1->x == pts->x
 		&& pb->data1->y == pts->y
 		&& get_last_point(pb->data1)->x == get_last_point(pts)->x
 		&& get_last_point(pb->data1)->y == get_last_point(pts)->y
-		&& index_pile == 0)
+		&& i == 0)
 		{
 			printf("Condition d'arrêt atteinte\n");
 			result = pb->data1;
@@ -174,6 +171,7 @@ int main(int argc, char **argv)
 			}
 			else
 			{
+				i++;
 				if (pb2->type == 1)
 				{
 					send_pb(pb2,sender);
@@ -191,8 +189,6 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		i++;
-		printf("i : %d\n",i);
 	}
 
 	//pvm_mcast(tid, NB_SLAVE, 1); /* fin esclaves */
