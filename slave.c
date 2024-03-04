@@ -4,6 +4,82 @@
 #include "point.h"
 #include "pvm3.h"
 
+point * merge_list(point * pts1, point * pts2)
+{
+    point * result = point_alloc();
+
+    if(pts1 == NULL || pts2 == NULL)
+    {
+        printf("Fusion Impossible, une des listes est NULL\n");
+        exit(-1);
+    }
+
+    if(pts1->x > pts2->x)
+    {
+        *result = *pts2;
+        pts2 = pts2->next;
+    }
+    else
+    {
+        *result = *pts1;
+        pts1 = pts1->next;
+    }
+
+    point * temp =  result;
+
+    while(pts1 != NULL || pts2 != NULL)
+    {
+        temp->next = point_alloc();
+        temp = temp->next;
+        if(pts1 != NULL && pts2 != NULL)
+        {
+            if(pts1->x > pts2->x)
+            {
+                *temp = *pts2;
+                pts2 = pts2->next;
+            }
+            else
+            {
+                *temp = *pts1;
+                pts1 = pts1->next;
+            }
+        }
+        else
+        {
+            if(pts1 == NULL)
+            {
+                *temp = *pts2;
+                pts2 = pts2->next;
+            }
+            else
+            {
+                *temp = *pts1;
+                pts1 = pts1->next;
+            }
+        }
+    }
+
+    return result;
+
+}
+
+/*
+ * calcul recursif d'enveloppe
+ * convexe par bissection
+ */
+void upper_hull(point *pts)
+{
+	point *upper, *pts2;
+
+	upper = point_UH(pts); /* retourne 0 si plus de 4 points */
+	if (!upper) {
+		pts2 = point_part(pts);
+		upper_hull(pts);
+		upper_hull(pts2);
+		point_merge_UH(pts, pts2);
+	}
+}
+
 int main(int argc, char **argv)
 {
     setvbuf(stdout, NULL, _IONBF, 0);  // Pas de tampon
@@ -12,6 +88,22 @@ int main(int argc, char **argv)
     point * resultat;
     int sender;
     
+    /*
+ * calcul recursif d'enveloppe
+ * convexe par bissection
+ */
+void upper_hull(point *pts)
+{
+	point *upper, *pts2;
+
+	upper = point_UH(pts); /* retourne 0 si plus de 4 points */
+	if (!upper) {
+		pts2 = point_part(pts);
+		upper_hull(pts);
+		upper_hull(pts2);
+		point_merge_UH(pts, pts2);
+	}
+}
 
     while (1)
     {
@@ -36,22 +128,8 @@ int main(int argc, char **argv)
         else
         {
             printf("Problème de type 2 reçu\n");
-            if(pb->data1->x > pb->data2->x)
-            {
-                printf("Inveserion\n");
-                resultat = point_merge_UH(pb->data2,pb->data1);
-            }
-            else
-            {
-                printf("Pas d'inversion");
-                resultat = point_merge_UH(pb->data1,pb->data2);
-            }
-            if(resultat == NULL)
-            {
-                printf("Test\n");
-                pvm_exit();
-                exit(0);
-            }
+            resultat = merge_list(pb->data1,pb->data2);
+            upper_hull(resultat);
             pb->data1 = resultat;
             pb->data2 = NULL;
             printf("\nProblème de fusion traité : ");

@@ -96,6 +96,7 @@ int main(int argc, char **argv)
 	point *pts; //Liste initial de points
 	point * result;  //Envelopppe convexe de la liste de points
 	point * last; //Dernier points de la liste initiale,  utilisé pour la condition d'arrêt
+	int problemesResolus = 0;
 
 	pb_t * pb;
 	int sender;
@@ -119,7 +120,7 @@ int main(int argc, char **argv)
 	print_pile();
 
 	//Créations des processus esclaves
-	pvm_spawn("/home/ivan/Documents/pvm/pvm_project/slave",NULL,0,NULL,NB_SLAVE,tid);
+	pvm_spawn("/home/ivan/Documents/pvm/pvm_temp/slave",NULL,0,NULL,NB_SLAVE,tid);
 
 	//Envoie un premier problème à chaque fils
 	for (int i = 0; i < NB_SLAVE; i++)
@@ -137,20 +138,22 @@ int main(int argc, char **argv)
 	{
 		printf("En attente de reception d'un probleme\n");
 		pb = receive_pb(-1, &sender);
+		problemesResolus++;
 		pb->type = 2;
 		print_pb(pb);
-		if(pb->data1->x == pts->x && pb->data1->y == pts->y && get_last_point(pb->data1)->x == get_last_point(pts)->x && get_last_point(pb->data1)->y == get_last_point(pts)->y)
+		// printf("pb first x : %d == pb first y : %d | ",pb->data1->x,pb->data1->y);
+		// printf("pts first x : %d == pts first y : %d\n",pts->x,pts->y);
+		// printf("pb last x : %d == pb last y : %d | ",get_last_point(pb->data1)->x,get_last_point(pb->data1)->y);
+		// printf("pts last x : %d == pts last y : %d\n",get_last_point(pts)->x,get_last_point(pts)->y);
+		if(pb->data1->x == pts->x
+		&& pb->data1->y == pts->y
+		&& get_last_point(pb->data1)->x == get_last_point(pts)->x
+		&& get_last_point(pb->data1)->y == get_last_point(pts)->y
+		&& index_pile == 0)
 		{
-			printf("WTF");
+			printf("Condition d'arrêt atteinte\n");
 			result = pb->data1;
 			break;
-		}
-		else
-		{
-			printf("pb first x : %d == pb first y : %d\n",pb->data1->x,pb->data1->y);
-			printf("pts first x : %d == pts first y : %d\n",pts->x,pts->y);
-			printf("pb last x : %d == pb last y : %d\n",get_last_point(pb->data1)->x,get_last_point(pts)->x);
-			printf("pts last x : %d == pts last y : %d\n",get_last_point(pb->data1)->y,get_last_point(pts)->y);
 		}
 		empile(pb);
 		pb = depile();
@@ -191,6 +194,8 @@ int main(int argc, char **argv)
 		i++;
 		printf("i : %d\n",i);
 	}
+
+	//pvm_mcast(tid, NB_SLAVE, 1); /* fin esclaves */
 
 	for (int i = 0; i < NB_SLAVE; i++)
 	{
