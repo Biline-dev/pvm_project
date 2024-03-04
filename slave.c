@@ -112,13 +112,13 @@ void upper_hull(point *pts)
         printf("\nProblème reçu : ");
         print_pb(pb);
         
-        if(pb->type == 3)
+        if(pb->type == pb_quit)
         {
             pvm_exit();
             exit(0);
         }
 
-        if(pb->type == 1)
+        if(pb->type == pb_calcul)
         {
             resultat = point_UH(pb->data1);
             pb->data1 = resultat;
